@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Ledger Chess</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Cormorant:ital,wght@0,500;1,500&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -30,7 +31,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    padding:32px 16px 60px;
+    padding:32px 12px 60px;
   }
 
   header{
@@ -119,6 +120,7 @@
   /* Side panel */
   .panel{
     width:280px;
+    max-width:100%;
     display:flex;
     flex-direction:column;
     gap:18px;
@@ -719,109 +721,4 @@ document.getElementById('sideRow').addEventListener('click', (e) => {
 
 function onSquareClick(r,c){
   if(state.gameOver || state.thinking) return;
-  if(state.mode==='pvc' && state.turn!==state.humanColor) return;
-  const p = state.board[r][c];
-
-  if(state.selected){
-    const [sr,sc] = state.selected;
-    const isLegal = state.legalMoves.some(([mr,mc]) => mr===r && mc===c);
-    if(isLegal){
-      makeMove(sr,sc,r,c);
-      state.selected = null;
-      state.legalMoves = [];
-      render();
-      maybeTriggerComputerMove();
-      return;
-    }
-    // clicking another own piece re-selects
-    if(p && p.color===state.turn){
-      state.selected = [r,c];
-      state.legalMoves = legalMovesFor(state.board, r, c);
-      render();
-      return;
-    }
-    state.selected = null;
-    state.legalMoves = [];
-    render();
-    return;
-  }
-
-  if(p && p.color===state.turn){
-    state.selected = [r,c];
-    state.legalMoves = legalMovesFor(state.board, r, c);
-    render();
-  }
-}
-
-function pieceLetter(type){
-  return type==='P' ? '' : type;
-}
-
-function makeMove(sr,sc,tr,tc){
-  const moving = state.board[sr][sc];
-  const captured = state.board[tr][tc];
-  const fromName = squareName(sr,sc);
-  const toName = squareName(tr,tc);
-
-  if(captured){
-    state.captured[captured.color].push(captured.type);
-  }
-
-  state.board[tr][tc] = moving;
-  state.board[sr][sc] = null;
-
-  // Promotion: auto-queen
-  let promoted = false;
-  if(moving.type==='P' && (tr===0 || tr===7)){
-    moving.type = 'Q';
-    promoted = true;
-  }
-
-  state.lastMove = [[sr,sc],[tr,tc]];
-
-  const nextTurn = state.turn==='w' ? 'b' : 'w';
-  const nextInCheck = isInCheck(state.board, nextTurn);
-  const nextHasMoves = anyLegalMoves(state.board, nextTurn);
-
-  let notation = pieceLetter(moving.type) + (captured?'x':'') + toName;
-  if(fromName===toName) notation = toName; // safeguard
-  if(moving.type==='P' && captured){
-    notation = 'abcdefgh'[sc] + 'x' + toName;
-  }
-  if(promoted) notation += '=Q';
-
-  let gameEnded = false;
-  if(!nextHasMoves){
-    gameEnded = true;
-    if(nextInCheck){
-      notation += '#';
-      state.gameOver = true;
-    } else {
-      notation += ' (stalemate)';
-      state.gameOver = true;
-    }
-  } else if(nextInCheck){
-    notation += '+';
-  }
-
-  state.history.push(notation);
-  state.turn = nextTurn;
-
-  if(gameEnded){
-    if(nextInCheck){
-      const winner = nextTurn==='w' ? 'Black' : 'White';
-      statusMsg.textContent = 'Checkmate — ' + winner + ' wins.';
-    } else {
-      statusMsg.textContent = 'Stalemate — draw.';
-    }
-    statusMsg.classList.add('win');
-  }
-}
-
-document.getElementById('resetBtn').addEventListener('click', resetGame);
-
-render();
-</script>
-
-</body>
-</html>
+  if(st
